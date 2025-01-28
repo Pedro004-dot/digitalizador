@@ -1,0 +1,7 @@
+/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/AirSane-build/CMakeFiles/airsaned.dir
+/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/AirSane-build/CMakeFiles/edit_cache.dir
+/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/AirSane-build/CMakeFiles/rebuild_cache.dir
+/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/AirSane-build/CMakeFiles/list_install_components.dir
+/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/AirSane-build/CMakeFiles/install.dir
+/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/AirSane-build/CMakeFiles/install/local.dir
+/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/AirSane-build/CMakeFiles/install/strip.dir

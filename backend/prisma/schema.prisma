@@ -1,0 +1,50 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuarios {
+  id          String      @id @default(uuid())
+  cpf         String      @unique
+  nome        String
+  senha       String
+  permissoes  String
+  prefeitura  Prefeituras? @relation(fields: [prefeituraId], references: [id])
+  prefeituraId String?     
+  createdAt   DateTime    @default(now())
+  documentos  Documento[]
+  logs        Log[]
+}
+
+model Prefeituras {
+  id         String      @id @default(uuid())
+  cidade     String
+  createdAt  DateTime    @default(now())
+  usuarios   Usuarios[]
+  documentos Documento[]
+}
+
+model Documento {
+  id          String      @id @default(uuid())
+  nome        String
+  url         String
+  chave       String
+  datacriacao DateTime    @default(now())
+  prefeitura  Prefeituras @relation(fields: [prefeituraid], references: [id])
+  prefeituraid String
+  usuario     Usuarios    @relation(fields: [usuarioid], references: [id])
+  usuarioid   String
+}
+
+model Log {
+  id         String      @id @default(uuid())
+  acao       String
+  usuario    Usuarios    @relation(fields: [usuarioId], references: [id])
+  usuarioId  String
+  dataHora   DateTime    @default(now())
+  documento  String?
+}

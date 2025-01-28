@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "9bUu7yFrcAwtyMwM0khX",
+    "database": "digitalizador",
+    "host": "191.34.84.149:5432",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "9bUu7yFrcAwtyMwM0khX",
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
