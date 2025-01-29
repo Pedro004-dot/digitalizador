@@ -3,8 +3,7 @@ import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { RootState } from "../store/store";
-import LogoutButton from "./logout"; // Ajuste o caminho conforme necessário
-
+import LogoutButton from "./logout";
 
 const Sidebar = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -19,16 +18,57 @@ const Sidebar = () => {
     ? `/${user.prefeituraId}` // Se já estiver na URL, usa como base
     : `/${user.prefeituraId}`; // Caso contrário, adiciona o prefeituraId
 
+  // Configuração dos links da Sidebar
+  const navItems = [
+    {
+      label: "Home",
+      href: `${baseRoute}/home`,
+      icon: pathname === `${baseRoute}/home` ? "/icons/homeAzul.svg" : "/icons/homeCinza.svg",
+      isActive: pathname === `${baseRoute}/home`,
+    },
+    {
+      label: "Documentos",
+      href: `${baseRoute}/documentos`,
+      icon: pathname === `${baseRoute}/documentos` ? "/icons/documentoSoloAzul.svg" : "/icons/documentsCinza.svg",
+      isActive: pathname === `${baseRoute}/documentos`,
+    },
+    {
+      label: "Digitalizar",
+      href: `${baseRoute}/digitalizador`,
+      icon: pathname === `${baseRoute}/digitalizador` ? "/icons/digitalizarAzul.svg" : "/icons/digitalizarCinza.svg",
+      isActive: pathname === `${baseRoute}/digitalizador`,
+    },
+  ];
+
   return (
-    <aside className="w-64 bg-white shadow-lg h-full">
-      <nav className="flex flex-col p-4">
-        <h1 className="font-bold text-lg mb-4">Bem-vindo, {user.nome}</h1>
-        <Link href={`${baseRoute}/home`}>Home</Link>
-        <Link href={`${baseRoute}/documentos`}>Documentos</Link>
-        <Link href={`${baseRoute}/digitalizador`}>Digitalizar</Link>
-        <Link href={`${baseRoute}/logout`}>Sair</Link>
-        <LogoutButton />
-      </nav>
+    <aside className="w-[262px] h-screen bg-white shadow-lg fixed top-0 left-0">
+      <div className="relative h-full p-4">
+        {/* Logo */}
+        <div className="absolute top-4 left-6">
+          <h1>Logo</h1>
+        </div>
+
+        {/* Navegação */}
+        <nav className="mt-[200px] space-y-8">
+          {navItems.map((item, index) => (
+            <Link
+              key={index}
+              href={item.href}
+              className={`flex items-center space-x-4 ${
+                item.isActive ? "text-main-color-2 font-bold" : "text-sub-color"
+              }`}
+            >
+              <img src={item.icon} alt={`${item.label} Icon`} className="w-6 h-6" />
+              <span className="text-xl">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Logout Button */}
+        <div className="absolute bottom-4 left-6">
+          <LogoutButton />
+        </div>
+      </div>
     </aside>
   );
 };

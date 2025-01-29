@@ -1,6 +1,0 @@
-/usr/local/sbin/airsaned
-/Library/LaunchDaemons/org.simulpiscator.airsaned.plist
-/usr/local/etc/airsane/access.conf
-/usr/local/etc/airsane/ignore.conf
-/usr/local/etc/airsane/options.conf
-/usr/local/etc/airsane/Gnome-scanner.png

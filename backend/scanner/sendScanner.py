@@ -22,29 +22,58 @@ AWS_REGION = 'sa-east-1'
 # Configuração de logs
 logging.basicConfig(level=logging.INFO)
 
-def upload_to_s3(file_buffer, bucket_name, s3_key):
+s3_client = boto3.client(
+    's3',
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY,
+    region_name=AWS_REGION
+)
+
+
+def criar_pasta_s3(bucket_name, folder_path):
     """
-    Faz o upload de um arquivo para o S3 a partir de um buffer na memória.
+    Cria a estrutura da pasta no S3 se não existir.
     """
-    s3 = boto3.client(
-        's3',
-        aws_access_key_id=AWS_ACCESS_KEY,
-        aws_secret_access_key=AWS_SECRET_KEY,
-        region_name=AWS_REGION,
-        endpoint_url='https://s3.sa-east-1.amazonaws.com'  
-    )
     try:
-        s3.head_bucket(Bucket=bucket_name)
-        logging.info(f"Bucket '{bucket_name}' encontrado.")
-        s3.put_object(Bucket=bucket_name, Key=s3_key, Body=file_buffer.getvalue())
-        logging.info(f"Arquivo enviado para o S3 com sucesso. Key: {s3_key}")
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder_path, Delimiter="/")
+        if "Contents" not in response and "CommonPrefixes" not in response:
+            # A pasta não existe; criar
+            s3_client.put_object(Bucket=bucket_name, Key=(folder_path + "/"))
+            logging.info(f"Pasta '{folder_path}' criada no S3.")
+        else:
+            logging.info(f"Pasta '{folder_path}' já existe no S3.")
+    except Exception as e:
+        logging.error(f"Erro ao criar/verificar pasta no S3: {str(e)}")
+        raise RuntimeError(f"Erro ao criar/verificar pasta no S3: {str(e)}")
+
+def upload_para_s3(bucket_name, folder_level1, folder_level2, file_name, file_buffer):
+    """
+    Faz o upload do arquivo para a pasta correta no S3, criando as pastas necessárias.
+    """
+    try:
+        # Verificar e criar a pasta de nível 1
+        if folder_level1 not in ["Licitacoes", "Diversos", "Empenhos"]:
+            raise ValueError("Pasta de nível 1 inválida.")
+        
+        # Caminho para a pasta de nível 2
+        nivel2_path = f"{folder_level1}/{folder_level2}"
+
+        # Verificar e criar a pasta de nível 2 (ano)
+        criar_pasta_s3(bucket_name, nivel2_path)
+
+        # Caminho completo do arquivo
+        s3_key = f"{nivel2_path}/{file_name}"
+
+        # Upload do arquivo
+        s3_client.put_object(Bucket=bucket_name, Key=s3_key, Body=file_buffer.getvalue())
+        logging.info(f"Arquivo '{file_name}' enviado para '{s3_key}'.")
         return f"https://{bucket_name}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
-    except s3.exceptions.NoSuchBucket:
-        logging.error(f"Bucket '{bucket_name}' não encontrado.")
-        raise RuntimeError(f"O bucket '{bucket_name}' não existe.")
+    except ValueError as ve:
+        logging.error(f"Erro de validação: {str(ve)}")
+        raise
     except Exception as e:
         logging.error(f"Erro ao fazer upload para o S3: {str(e)}")
-        raise RuntimeError(f"Erro ao fazer upload para o S3: {str(e)}")
+        raise
 
 # Função de Digitalização
 def create_scan_job(scanner_url, format_type="image/jpeg", input_source="Feeder"):
@@ -96,6 +125,9 @@ def start_scan():
     try:
         payload = request.get_json()
         scanner = payload.get('scanner')
+        file_name = payload.get('file_name')
+        folder_level1 = payload.get('folder_level1')  # Ex: "Licitacoes"
+        folder_level2 = payload.get('folder_level2')
         if not scanner or not scanner.get('address'):
             return jsonify({"message": "Erro: Endereço do scanner não fornecido", "status": "error"}), 400
 
@@ -116,11 +148,15 @@ def start_scan():
         output_pdf = f"{UPLOAD_FOLDER}/documento_{int(time.time())}.pdf"
         consolidate_to_pdf(pages, output_pdf)
 
+       
+
         # Upload ao S3
         with open(output_pdf, 'rb') as pdf_file:
             pdf_buffer = io.BytesIO(pdf_file.read())
-        s3_key = f"scans/documento_digitalizado_{int(time.time())}.pdf"
-        file_url = upload_to_s3(pdf_buffer, AWS_BUCKET_NAME, s3_key)
+            file_url = upload_para_s3(AWS_BUCKET_NAME,folder_level1,folder_level2,file_name, pdf_buffer)
+
+        # file_url = upload_para_s3(pdf_buffer, AWS_BUCKET_NAME, s3_path)
+        
 
         return jsonify({"message": "Digitalização concluída com sucesso.", "file_url": file_url, "status": "success"}), 200
 

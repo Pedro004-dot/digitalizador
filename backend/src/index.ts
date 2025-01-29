@@ -5,9 +5,10 @@ import prefeituraRouter from './routes/prefeituraRouter';
 import documentoRouter from './routes/documentoRouter';
 import cors from 'cors';
 import router from './routes/testeRouter';
+import routerAWS from './routes/awsRouter';
 
 const app = express();
-const PORT = 3001;
+
 
 // Instância do Prisma
 const prisma = new PrismaClient();
@@ -32,6 +33,7 @@ app.use('/teste', router);
 app.use('/user', userRoutes);
 app.use('/prefeitura', prefeituraRouter);
 app.use('/documento', documentoRouter);
+app.use('/aws',routerAWS)
 
 // Conectar ao banco de dados antes de iniciar o servidor
 prisma.$connect()
@@ -39,8 +41,8 @@ prisma.$connect()
     console.log('Conexão com o banco de dados estabelecida com sucesso.');
 
     // Inicia o servidor
-    app.listen(PORT, () => {
-      console.log(`Servidor rodando em http://localhost:${PORT}`);
+    app.listen(process.env.PORT, () => {
+      console.log(`Servidor rodando em ${process.env.PORT}`);
     });
   })
   .catch((error) => {
