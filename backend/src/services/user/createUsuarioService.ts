@@ -53,24 +53,17 @@ const createUser = async (data: CreateUserInput) => {
 
   const hashedPassword = await bcrypt.hash(senha, 10);
 
-  const createUsuario = async (data: {
-    cpf: string;
-    nome: string;
-    senha: string;
-    permissoes: string;
-    prefeituraId?: string | null;
-  }) => {
-    return await prisma.usuarios.create({
-      data: {
-        cpf: data.cpf,
-        nome: data.nome,
-        senha: data.senha,
-        permissoes: data.permissoes,
-        prefeituraId: data.prefeituraId || null,
-      },
-    });
-  };
+  // Criação do usuário
+  const novoUsuario = await prisma.usuarios.create({
+    data: {
+      cpf,
+      nome,
+      senha: hashedPassword,
+      permissoes,
+      prefeituraId: prefeituraId || null,
+    },
+  });
 
+  return novoUsuario;
 };
-
 export default { createUser };

@@ -44,8 +44,9 @@ const Sidebar = () => {
     <aside className="w-[262px] h-screen bg-white shadow-lg fixed top-0 left-0">
       <div className="relative h-full p-4">
         {/* Logo */}
-        <div className="absolute top-4 left-6">
-          <h1>Logo</h1>
+        <div className="absolute top-4 left-6 flex items-center space-x-4">
+          <img src="/icons/logo.svg" alt="Logo" className="w-10 h-10" /> {/* Ajuste o tamanho da logo aqui */}
+          <h1 className="text-xl font-bold">ITA</h1> {/* Ajuste o tamanho e o estilo do texto aqui */}
         </div>
 
         {/* Navegação */}

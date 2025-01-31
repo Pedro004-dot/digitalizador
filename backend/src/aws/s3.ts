@@ -37,20 +37,54 @@ export const listFoldersLevel2 = async (folderLevel1: string): Promise<string[]>
     );
   };
 
-// Função para listar arquivos no nível 3
-export const listFiles = async (folderLevel1: string, folderLevel2: string): Promise<any[]> => {
-  const params = {
-    Bucket: BUCKET_NAME,
-    Prefix: `${folderLevel1}/${folderLevel2}/`, // Obtém apenas os arquivos do caminho completo
+  export const listFiles = async (folderLevel1: string, folderLevel2: string): Promise<any[]> => {
+    try {
+      const params = {
+        Bucket: BUCKET_NAME,
+        Prefix: `${folderLevel1}/${folderLevel2}/`, // Obtém arquivos dentro do caminho fornecido
+      };
+  
+      const response = await s3.listObjectsV2(params).promise();
+  
+      // Filtra apenas arquivos, excluindo a "pasta" virtual (se existir)
+      const files = response.Contents?.filter(item => item.Key !== `${folderLevel1}/${folderLevel2}/`) || [];
+  
+      // Mapeia os arquivos e busca informações detalhadas com headObject
+      const filesWithCreationDate = await Promise.all(
+        files.map(async (file) => {
+          if (!file.Key) {
+            return null; // Ignora arquivos sem chave
+          }
+          
+          const headParams = {
+            Bucket: BUCKET_NAME,
+            Key: file.Key, // Key garantido como string
+          };
+  
+          try {
+            const metadata = await s3.headObject(headParams).promise();
+            return {
+              Key: file.Key, // Caminho completo do arquivo
+              Size: file.Size, // Tamanho do arquivo
+              LastModified: file.LastModified, // Última modificação
+              CreationDate: metadata.LastModified || file.LastModified, // Data de criação ou última modificação
+            };
+          } catch (error) {
+            console.error(`Erro ao obter metadados do arquivo ${file.Key}:`, error);
+            return {
+              Key: file.Key,
+              Size: file.Size,
+              LastModified: file.LastModified,
+              CreationDate: null, // Defina como nulo em caso de erro
+            };
+          }
+        })
+      );
+  
+      // Remove quaisquer valores nulos da lista
+      return filesWithCreationDate.filter(file => file !== null);
+    } catch (error) {
+      console.error("Erro ao listar arquivos do S3:", error);
+      throw new Error("Erro ao listar arquivos");
+    }
   };
-
-  const response = await s3.listObjectsV2(params).promise();
-  return (
-    response.Contents?.map((file) => ({
-      key: file.Key,
-      lastModified: file.LastModified,
-      size: file.Size,
-      url: `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.Key}`,
-    })) || []
-  );
-};

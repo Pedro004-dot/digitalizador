@@ -8,7 +8,7 @@ import { isAuthenticate } from "../middleware/authMiddleware";
 const prefeituraRouter = express.Router();
 
 // Rota para criar uma prefeitura
-prefeituraRouter.post("/create",isAuthenticate , createPrefeituraController.createPrefeitura);
+prefeituraRouter.post("/create" , createPrefeituraController.createPrefeitura);
 
 prefeituraRouter.get("/getById",isAuthenticate , getPrefeituraController.getPrefeituraById);
 

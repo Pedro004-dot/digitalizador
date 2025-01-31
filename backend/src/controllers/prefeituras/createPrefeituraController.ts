@@ -12,7 +12,8 @@ const createPrefeitura = async (req: Request, res: Response): Promise<void> => {
     const novaPrefeitura = await prefeituraService.createPrefeitura({ cidade });
     res.status(201).json(novaPrefeitura);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao criar prefeitura" });
+    console.error("Erro ao criar prefeitura:", error); // Adiciona log detalhado
+    res.status(500).json({ error: "Erro ao criar prefeitura", details: error });
   }
 };
 

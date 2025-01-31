@@ -30,6 +30,17 @@ s3_client = boto3.client(
 )
 
 
+import os
+
+def verificar_ou_criar_diretorio(diretorio):
+    """
+    Verifica se o diretório existe e o cria, se necessário.
+    """
+    if not os.path.exists(diretorio):
+        os.makedirs(diretorio)
+        logging.info(f"Diretório '{diretorio}' criado com sucesso.")
+    else:
+        logging.info(f"Diretório '{diretorio}' já existe.")
 def criar_pasta_s3(bucket_name, folder_path):
     """
     Cria a estrutura da pasta no S3 se não existir.
@@ -51,6 +62,7 @@ def upload_para_s3(bucket_name, folder_level1, folder_level2, file_name, file_bu
     Faz o upload do arquivo para a pasta correta no S3, criando as pastas necessárias.
     """
     try:
+        print(folder_level1, folder_level2,file_name)
         # Verificar e criar a pasta de nível 1
         if folder_level1 not in ["Licitacoes", "Diversos", "Empenhos"]:
             raise ValueError("Pasta de nível 1 inválida.")
@@ -127,9 +139,13 @@ def start_scan():
         scanner = payload.get('scanner')
         file_name = payload.get('file_name')
         folder_level1 = payload.get('folder_level1')  # Ex: "Licitacoes"
-        folder_level2 = payload.get('folder_level2')
+        folder_level2 = payload.get('folder_level2')  # Ex: "2023"
+
         if not scanner or not scanner.get('address'):
             return jsonify({"message": "Erro: Endereço do scanner não fornecido", "status": "error"}), 400
+
+        if not file_name or not folder_level1 or not folder_level2:
+            return jsonify({"message": "Erro: Nome, pasta ou ano ausentes.", "status": "error"}), 400
 
         scanner_url = f"http://{scanner['address']}:8080"
         format_type = payload.get('format', 'image/jpeg')  # Usar imagem como padrão
@@ -144,23 +160,23 @@ def start_scan():
         if not pages:
             return jsonify({"message": "Nenhuma página foi digitalizada.", "status": "error"}), 400
 
-        # Consolidar em PDF
-        output_pdf = f"{UPLOAD_FOLDER}/documento_{int(time.time())}.pdf"
-        consolidate_to_pdf(pages, output_pdf)
+        # Certificar-se de que o diretório local existe
+        local_path = f"{UPLOAD_FOLDER}/{folder_level1}/{folder_level2}"
+        os.makedirs(local_path, exist_ok=True)
 
-       
+        # Consolidar em PDF
+        output_pdf = f"{local_path}/{file_name}.pdf"
+        consolidate_to_pdf(pages, output_pdf)
 
         # Upload ao S3
         with open(output_pdf, 'rb') as pdf_file:
             pdf_buffer = io.BytesIO(pdf_file.read())
-            file_url = upload_para_s3(AWS_BUCKET_NAME,folder_level1,folder_level2,file_name, pdf_buffer)
-
-        # file_url = upload_para_s3(pdf_buffer, AWS_BUCKET_NAME, s3_path)
-        
+            file_url = upload_para_s3(AWS_BUCKET_NAME, folder_level1, folder_level2, file_name, pdf_buffer)
 
         return jsonify({"message": "Digitalização concluída com sucesso.", "file_url": file_url, "status": "success"}), 200
 
     except Exception as e:
+        logging.error(f"Erro durante o processo de digitalização: {str(e)}")
         return jsonify({"message": f"Erro no backend: {str(e)}", "status": "error"}), 500
 
 if __name__ == '__main__':

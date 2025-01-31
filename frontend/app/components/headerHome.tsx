@@ -42,6 +42,7 @@ const HeaderHome = () => {
         <Link
           href={`${baseRoute}/digitalizador`}
           className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 text-lg text-center"
+          style={{ color: 'white' }} // Garantia extra, se houver sobrescrições
         >
           + Novo arquivo
         </Link>

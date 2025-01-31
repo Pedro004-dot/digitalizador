@@ -1,20 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../../components/sidebar';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import axios from 'axios';
+import Header from '@/app/components/header';
 
-export default function Digitalizar({ params }: { params: { prefeituraId: string } }) {
+const DigitalizarPage = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const user = useSelector((state: RootState) => state.auth.user);
   const prefeitura = useSelector((state: RootState) => state.prefeitura);
   const router = useRouter();
   const [scanners, setScanners] = useState<any[]>([]);
-  const [manualInput, setManualInput] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     resolution: 300,
     format: 'application/pdf',
@@ -25,15 +26,15 @@ export default function Digitalizar({ params }: { params: { prefeituraId: string
     pageWidth: 215.9,
     pageHeight: 279.4,
     unit: 'mm',
-    folder_level1:" ",
-    folder_level2:" ",
-    file_name:" "
+    folder_level1: '',
+    folder_level2: '',
+    file_name: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
-  const [jobId, setJobId] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [isDigitalizing, setIsDigitalizing] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -79,215 +80,209 @@ export default function Digitalizar({ params }: { params: { prefeituraId: string
       alert('Por favor, preencha todas as informações obrigatórias.');
       return;
     }
-  
+
     setLoading(true);
     setError(null);
     setSuccess(null);
-  
+    setIsDigitalizing(true);
+    setProgress(0);
+
     const payload = {
       scanner: {
         address: formData.address,
       },
       input_source: formData.inputSource,
       resolution: formData.resolution || 300,
-      format: formData.format || "image/jpeg",
+      format: formData.format || 'image/jpeg',
       file_name: formData.file_name,
-      folder_level1: formData.folder_level1, // Ex: "Licitacoes"
-      folder_level2: formData.folder_level2, // Ex: "2023"
+      folder_level1: formData.folder_level1,
+      folder_level2: formData.folder_level2,
     };
-  
+
     try {
+
       const response = await axios.post('http://127.0.0.1:5004/scan/start', payload, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
-  
+
       if (response.data.status === 'success') {
-        setSuccess(`Digitalização iniciada com sucesso.`);
-        setIsScanning(true);
-        setJobId(response.data.job_id);
+        setSuccess(`Digitalização concluída com sucesso.`);
       } else {
         setError(response.data.message || 'Erro ao iniciar a digitalização.');
       }
-    } catch (err: any) {
+    } catch (err:any) {
       console.error('Erro ao iniciar digitalização:', err);
       setError(err.response?.data?.message || 'Erro ao iniciar digitalização.');
     } finally {
       setLoading(false);
+      setIsDigitalizing(false);
     }
   };
-  
-  return (
 
-    <ProtectedRoute>
-  <div className="flex h-full">
-    <Sidebar />
-    <div className="flex-1 p-6">
-      <h1 className="text-3xl font-bold text-blue-600 mb-4">
-        Digitalizar Documento da prefeitura de {prefeitura.cidade} e usuário {user?.nome}
-      </h1>
+  const nextStep = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
 
-      <div className="flex gap-4 mb-6">
-        <button
-          onClick={fetchScanners}
-          className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Buscar Scanners
-        </button>
-        <button
-          onClick={() => {
-            setManualInput(true);
-            setScanners([]);
-          }}
-          className="py-2 px-4 bg-gray-600 text-white rounded hover:bg-gray-700"
-        >
-          Inserir Manualmente
-        </button>
-      </div>
+  const previousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
-      {loading && <p className="mt-4 text-gray-600">Processando...</p>}
-      {error && <p className="mt-4 text-red-600">{error}</p>}
-      {success && <p className="mt-4 text-green-600">{success}</p>}
-
-      {scanners.length > 0 && (
-        <ul className="mt-4 space-y-4">
-          {scanners.map((scanner, index) => (
-            <li key={index} className="p-4 bg-gray-100 rounded shadow">
-              <p>
-                <strong>Nome:</strong> {scanner.name}
-              </p>
-              <p>
-                <strong>Endereço:</strong> {scanner.address}
-              </p>
-              <button
-                onClick={() =>
-                  setFormData({
-                    ...formData,
-                    address: scanner.address,
-                  })
-                }
-                className={`mt-2 py-1 px-4 rounded ${
-                  formData.address === scanner.address
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-300 text-gray-800'
-                }`}
-              >
-                {formData.address === scanner.address ? 'Selecionado' : 'Selecionar'}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {manualInput && (
-        <div className="mt-8 p-4 bg-gray-200 rounded shadow">
-          <h2 className="text-xl font-semibold mb-4">Inserir Scanner Manualmente</h2>
-          <div className="space-y-4">
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="flex flex-col gap-6">
             <div>
-              <label className="block font-medium">Endereço:</label>
+              <label className="block font-bold text-zinc-800">Título</label>
               <input
                 type="text"
-                name="address"
-                value={formData.address}
+                name="file_name"
+                placeholder="Como prefere catalogar"
+                value={formData.file_name}
                 onChange={handleInputChange}
-                className="mt-1 p-2 border rounded w-full"
+                className="w-full border rounded p-3"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-zinc-800">Pasta</label>
+              <select
+                name="folder_level1"
+                value={formData.folder_level1}
+                onChange={handleInputChange}
+                className="w-full border rounded p-3"
+              >
+                <option value="">Selecione a pasta</option>
+                <option value="Licitacoes">Licitações</option>
+                <option value="Diversos">Diversos</option>
+                <option value="Empenhos">Empenhos</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-bold text-zinc-800">Ano</label>
+              <input
+                type="number"
+                name="folder_level2"
+                placeholder="Ex: 2023"
+                value={formData.folder_level2}
+                onChange={handleInputChange}
+                className="w-full border rounded p-3"
               />
             </div>
           </div>
+        );
+      case 2:
+        return (
+          <div className="flex flex-col gap-4">
+            <button
+              onClick={fetchScanners}
+              className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Buscar Scanners
+            </button>
+            {scanners.map((scanner, index) => (
+              <div
+                key={index}
+                className={`p-4 bg-gray-100 rounded shadow cursor-pointer ${
+                  formData.address === scanner.address ? 'border-2 border-blue-600' : ''
+                }`}
+                onClick={() => setFormData({ ...formData, address: scanner.address })}
+              >
+                <p>
+                  <strong>Nome:</strong> {scanner.name}
+                </p>
+                <p>
+                  <strong>Endereço:</strong> {scanner.address}
+                </p>
+              </div>
+            ))}
+            {formData.address && (
+              <p className="text-green-600 font-bold">
+                Scanner selecionado: {formData.address}
+              </p>
+            )}
+          </div>
+        );
+      case 3:
+        return (
+          <div className="text-center">
+            <p>Preparado para digitalizar!</p>
+            <button
+              onClick={startScan}
+              className="py-2 px-6 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Digitalizar
+            </button>
+            {isDigitalizing && (
+              <div className="mt-6">
+                <p className="text-gray-600">Digitalizando... {progress.toFixed(0)}%</p>
+                <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
+                  <div
+                    className="bg-blue-600 h-4 rounded-full"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <ProtectedRoute>
+      <div className="flex flex-col h-screen">
+        <Header />
+        <div className="flex-1 flex justify-center items-center">
+          <div className="w-[592px] h-[544px] p-8 bg-white rounded-lg shadow-md">
+            <h1 className="text-xl font-bold text-blue-600 mb-6 text-center">
+              Digitalizar Documento
+            </h1>
+            <div className="flex items-center justify-between mb-6">
+              <div className={`text-sm ${currentStep === 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+                1. Catalogar
+              </div>
+              <div className={`text-sm ${currentStep === 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+                2. Encontrar
+              </div>
+              <div className={`text-sm ${currentStep === 3 ? 'text-blue-600' : 'text-gray-400'}`}>
+                3. Digitalizar
+              </div>
+            </div>
+            <div className="flex-1">{renderStepContent()}</div>
+            <div className="flex justify-between mt-6">
+              {currentStep > 1 && (
+                <button
+                  onClick={previousStep}
+                  className="py-2 px-4 bg-gray-600 text-white rounded"
+                >
+                  Voltar
+                </button>
+              )}
+              {currentStep < 3 && (
+                <button
+                  onClick={nextStep}
+                  disabled={!formData.address && currentStep === 2}
+                  className={`py-2 px-4 rounded ${
+                    currentStep === 2 && !formData.address
+                      ? 'bg-gray-400 text-gray-800 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  Continuar
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      )}
-
-{formData.address && (
-  <div className="mt-8 p-4 bg-gray-200 rounded shadow">
-    <h2 className="text-xl font-semibold mb-4">Configurações de Digitalização</h2>
-    <div className="space-y-4">
-      {/* Fonte de Entrada */}
-      <div>
-        <label className="block font-medium">Fonte de Entrada:</label>
-        <select
-          name="inputSource"
-          value={formData.inputSource || ''}
-          onChange={(e) =>
-            setFormData({ ...formData, inputSource: e.target.value })
-          }
-          className="mt-1 p-2 border rounded w-full"
-        >
-          <option value="" disabled>
-            Selecione a fonte de entrada
-          </option>
-          <option value="ADF">Alimentador Automático (ADF)</option>
-          <option value="Platen">Vidro</option>
-        </select>
       </div>
-
-      {/* 📂 Pasta de Nível 1 */}
-      <div>
-        <label className="block font-medium">Escolha a pasta principal (Nível 1):</label>
-        <select
-          name="folderLevel1"
-          value={formData.folder_level1 || ''}
-          onChange={(e) =>
-            setFormData({ ...formData, folder_level1: e.target.value })
-          }
-          className="mt-1 p-2 border rounded w-full"
-        >
-          <option value="" disabled>
-            Selecione a pasta
-          </option>
-          <option value="Licitacoes">Licitações</option>
-          <option value="Diversos">Diversos</option>
-          <option value="Empenhos">Empenhos</option>
-        </select>
-      </div>
-
-      {/* 📂 Pasta de Nível 2 (Ano) */}
-      <div>
-        <label className="block font-medium">Ano da pasta (Nível 2):</label>
-        <input
-          type="number"
-          name="folderLevel2"
-          placeholder="Ex: 2023"
-          value={formData.folder_level2 || ''}
-          onChange={(e) =>
-            setFormData({ ...formData, folder_level2: e.target.value })
-          }
-          className="mt-1 p-2 border rounded w-full"
-        />
-      </div>
-
-      {/* 📄 Nome do Arquivo */}
-      <div>
-        <label className="block font-medium">Nome do Arquivo:</label>
-        <input
-          type="text"
-          name="fileName"
-          placeholder="Digite o nome do arquivo"
-          value={formData.file_name || ''}
-          onChange={(e) =>
-            setFormData({ ...formData, file_name: e.target.value })
-          }
-          className="mt-1 p-2 border rounded w-full"
-        />
-      </div>
-    </div>
-
-    {/* Botão de digitalizar */}
-    <div className="text-center mt-8">
-      <button
-        onClick={startScan}
-        disabled={isScanning}
-        className="py-2 px-6 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        Iniciar Digitalização
-      </button>
-    </div>
-  </div>
-)}
-
-    </div>
-  </div>
-</ProtectedRoute>
-
+    </ProtectedRoute>
   );
-}
+};
+
+export default DigitalizarPage;

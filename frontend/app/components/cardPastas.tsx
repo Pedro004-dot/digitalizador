@@ -1,45 +1,53 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface CardPastasProps {
   title: string;
-  date: string;
-  filesCount: number;
-  icon: string; // URL ou caminho do ícone
+  subtitle?: string;
+  filesCount?: number;
+  path?: string; // Caminho para navegação
 }
 
-const CardPastas: React.FC<CardPastasProps> = ({ title, date, filesCount, icon }) => {
+const CardPastas: React.FC<CardPastasProps> = ({
+  title,
+  subtitle,
+  filesCount,
+  path,
+}) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (path) {
+      router.push(path); // Navega para a URL desejada
+    }
+  };
+
   return (
-    <div className="relative w-full h-[220px] max-w-[440px] mx-auto">
-      <div className="absolute w-full h-full bg-white rounded-[20px] shadow-[0px_2px_30px_#0000000f]">
-        {/* Título e Data */}
-        <div className="absolute top-[38px] left-[20px]">
-          <div className="font-medium text-[#0f1728] text-lg leading-[18px]">
-            {title}
-          </div>
-          <p className="mt-2 font-medium text-[#667084] text-sm leading-5">
-            {date}
-          </p>
-        </div>
+<div
+  className="relative w-full max-w-[440px] h-[200px] bg-white rounded-[20px] shadow-md flex flex-col justify-center cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] p-6"
+  onClick={handleClick}
+>
+  {/* Ícone e Texto lado a lado */}
+  <div className="flex items-center gap-4">
+    <img src="/icons/documentsAzul.svg" alt="Documento Icon" className="w-12 h-12" />
+    <h3 className="font-semibold text-[#0061FF] text-lg">{title}</h3>
+  </div>
 
-        {/* Ícone da pasta */}
-        <div className="absolute top-[38px] left-[20px]">
-          <img src={icon} alt={`${title} Icon`} className="w-12 h-12" />
-        </div>
+  {/* Subtítulo abaixo */}
+  {subtitle && (
+    <p className="mt-2 text-sm text-[#0061FF] text-left">{subtitle}</p>
+  )}
 
-        {/* Seção inferior */}
-        <div className="absolute bottom-[20px] right-[20px]">
-          <div className="font-medium text-[#667084] text-sm text-center">
-            Inside Files
-          </div>
-          <div className="mt-2 bg-[#ebf2ff] rounded-[10px] border-2 border-white px-6 py-2">
-            <span className="font-semibold text-brand-color text-[14px]">
-              {filesCount.toLocaleString()}
-            </span>
-          </div>
-        </div>
-      </div>
+  {/* Informações adicionais */}
+  {filesCount !== undefined && (
+    <div className="absolute bottom-4 right-4 bg-[#ebf2ff] rounded-[10px] border-2 border-white px-4 py-2">
+      <span className="font-semibold text-blue-600 text-[14px]">
+        {filesCount.toLocaleString()} arquivos
+      </span>
     </div>
+  )}
+</div>
   );
 };
 
