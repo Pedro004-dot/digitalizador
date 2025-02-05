@@ -1,9 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 
-dotenv.config();
 const prisma = new PrismaClient();
 
 export const loginUser = async (cpf: string, senha: string) => {

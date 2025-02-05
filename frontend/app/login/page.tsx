@@ -18,7 +18,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://127.0.0.1:3001/user/login', { cpf, senha });
+      const response = await axios.post('http://127.0.0.1:3010/user/login', { cpf, senha });
       const { token, user } = response.data;
   
       localStorage.setItem('token', token); // Store token for later use
@@ -42,7 +42,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center h-screen ">
       <form onSubmit={handleLogin} className="p-6 bg-white shadow-md rounded-md">
         <h2 className="text-xl font-semibold text-center">Login</h2>
         {error && <p className="text-red-500">{error}</p>}

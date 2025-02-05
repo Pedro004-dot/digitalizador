@@ -19,16 +19,16 @@ export default function RootLayout({
   const isLoginPage = pathname === '/login';
   return (
     <html lang="pt">
-      <body>
+      <body className="bg-white" >
         <Provider store={store}>
           {isLoginPage ? (
               // Apenas renderiza o conteúdo sem a sidebar
-              <div className="h-screen bg-gray-100">{children}</div>
+              <div className="h-screen">{children}</div>
             ) : (
               // Layout com a sidebar
               <div className="flex h-screen">
                 <Sidebar />
-                <main className="ml-[262px] flex-1 bg-gray-50 overflow-y-auto p-8">
+                <main className="ml-[262px] flex-1 overflow-y-auto p-8">
                   {children}
                 </main>
               </div>

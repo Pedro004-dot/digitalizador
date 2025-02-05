@@ -3,11 +3,14 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const HeaderHome = () => {
   const pathname = usePathname();
   const prefeitura = useSelector((state: RootState) => state.prefeitura);
   const user = useSelector((state: RootState) => state.auth.user);
+  const router = useRouter();
+  
 
   if (!user || !user.prefeituraId) {
     return null;
@@ -36,6 +39,7 @@ const HeaderHome = () => {
           <input
             type="text"
             placeholder="Pesquise algum documento"
+            onClick={()=>{router.push(`${baseRoute}/pesquisa`)}}
             className="border border-gray-300 rounded-lg pl-12 py-3 pr-6 w-[300px] focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

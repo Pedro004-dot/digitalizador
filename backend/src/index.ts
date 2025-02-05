@@ -9,7 +9,7 @@ import routerAWS from './routes/awsRouter';
 
 const app = express();
 
-
+require('dotenv').config();
 // Instância do Prisma
 const prisma = new PrismaClient();
 

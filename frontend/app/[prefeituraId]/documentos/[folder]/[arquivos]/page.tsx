@@ -14,7 +14,7 @@ interface FileData {
   url?: string; // Para visualizar no navegador
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.PORT || 'http://localhost:3010';
 
 const ArquivosPage = () => {
   const { folder } = useParams();

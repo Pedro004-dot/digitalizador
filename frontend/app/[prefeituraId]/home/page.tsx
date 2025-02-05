@@ -10,7 +10,7 @@ import axios from 'axios';
 import ArquivosHome from '@/app/components/arquivosHome';
 import CardPastas from '@/app/components/cardPastas';
 
-const API_URL = process.env.PORT || "http://localhost:3001";
+const API_URL = process.env.PORT || "http://localhost:3010";
 
 export default function HomePage() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -27,6 +27,7 @@ export default function HomePage() {
   const fetchFolders = async () => {
     try {
       const response = await axios.get(`${API_URL}/aws/folders-level1`);
+      console.log(`${API_URL}/aws/folders-level1`)
       setFolders(response.data);
     } catch (error) {
       console.error('Erro ao buscar pastas de nível 1:', error);
@@ -79,9 +80,9 @@ export default function HomePage() {
 
   return (
     <ProtectedRoute>
-  <div className="w-full flex justify-center">
-    {/* Contêiner centralizado para alinhamento */}
-    <div className="w-full max-w-[1400px]">
+  <div className="w-full flex justify-center bg-white">
+    
+    <div className="w-full max-w-[1400px] bg-white">
       {/* Header */}
       <HeaderHome />
 

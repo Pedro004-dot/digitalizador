@@ -1,22 +1,30 @@
-import AWS from 'aws-sdk';
+import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
-const s3 = new AWS.S3({
-  region: 'sa-east-1', // Ajuste para a sua região
+// Criar instância do cliente S3 usando AWS SDK v3
+const s3 = new S3Client({
+  region: process.env.AWS_REGION || "sa-east-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
 });
 
 /**
- * Função para buscar os arquivos recentes no S3
+ * Busca os arquivos mais recentes no S3, ordenados pela data de modificação.
+ * @param bucketName Nome do bucket S3
+ * @param maxKeys Número máximo de arquivos a buscar (padrão: 5)
+ * @returns Lista de arquivos recentes com nome, tamanho e data da última modificação
  */
 export const getRecentFiles = async (bucketName: string, maxKeys: number = 5) => {
   try {
-    const params = {
-      Bucket: bucketName, // Nome do bucket
-      MaxKeys: maxKeys, // Quantos arquivos trazer
-    };
+    const command = new ListObjectsV2Command({
+      Bucket: bucketName,
+      MaxKeys: maxKeys,
+    });
 
-    const data = await s3.listObjectsV2(params).promise();
+    const data = await s3.send(command);
 
-    if (!data.Contents) {
+    if (!data.Contents || data.Contents.length === 0) {
       return [];
     }
 
@@ -31,7 +39,7 @@ export const getRecentFiles = async (bucketName: string, maxKeys: number = 5) =>
 
     return recentFiles;
   } catch (error) {
-    console.error('Erro ao buscar arquivos recentes:', error);
-    throw new Error('Erro ao buscar arquivos recentes');
+    console.error("❌ Erro ao buscar arquivos recentes:", error);
+    throw new Error("Erro ao buscar arquivos recentes");
   }
 };

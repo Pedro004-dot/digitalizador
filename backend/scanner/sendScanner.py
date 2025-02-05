@@ -13,11 +13,7 @@ import logging
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-UPLOAD_FOLDER = './scanner/scans'
-AWS_ACCESS_KEY = 'AKIA6ODU356GIUTGAFGE'
-AWS_SECRET_KEY = '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'
-AWS_BUCKET_NAME = 'armazenadordocumentos'
-AWS_REGION = 'sa-east-1'
+
 
 # Configuração de logs
 logging.basicConfig(level=logging.INFO)

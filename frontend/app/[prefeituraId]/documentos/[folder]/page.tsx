@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
 import Header from '@/app/components/header';
 
-const API_URL = process.env.PORT || "http://localhost:3001";
+const API_URL = process.env.PORT || "http://localhost:3010";
 
 const FolderPage = () => {
     const user = useSelector((state: RootState) => state.auth.user);

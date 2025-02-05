@@ -10,7 +10,7 @@ import PesquisaOCR from '@/app/components/pesquisaOCR';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
 import Header from '@/app/components/header';
 
-const API_URL = process.env.PORT || "http://localhost:3001";
+const API_URL = process.env.PORT || "http://localhost:3010";
 
 const DocumentosRootPage = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -41,19 +41,23 @@ const DocumentosRootPage = () => {
         <Header/>
         <div className="container mx-auto p-4">
           <div className="flex flex-wrap justify-center gap-6">
+           \
           {/* <PesquisaOCR /> */}
             {folders.map((folder, index) => (
+              
               <div
                 key={index}
                 onClick={() => router.push(`/${user?.prefeituraId}/documentos/${folder}`)} // Redireciona com o nome da pasta
                 className="cursor-pointer"
               >
+                
                 <CardPastas
                   title={folder}
                   subtitle="Clique para acessar"
                 />
               </div>
             ))}
+             <h1>Ola</h1> 
           </div>
         </div>
       </div>
