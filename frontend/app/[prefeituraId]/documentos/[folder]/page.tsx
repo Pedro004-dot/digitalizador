@@ -7,7 +7,8 @@ import CardPastas from '../../../components/cardPastas';
 import { RootState } from '@/app/store/store';
 import { useSelector } from 'react-redux';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
-import Header from '@/app/components/header';
+import HeaderHome from '@/app/components/headerHome';
+import LoadingEffect from '@/app/components/loading';
 
 const API_URL = process.env.PORT || "http://localhost:3010";
 
@@ -35,15 +36,24 @@ const FolderPage = () => {
     fetchYears();
   }, [folder]);
 
-  if (loading) return <div>Carregando...</div>;
+  if(loading) return <div><LoadingEffect/></div>;
 
   return (
     <ProtectedRoute>
-      <div className='flex flex-col h-screen'>
-        <Header/>
-             <div className="container mx-auto p-4">
-        <h2 className="text-2xl font-bold mb-6">Anos na pasta {folder}</h2>
-        <div className="flex flex-wrap justify-center gap-6">
+      <div className='flex flex-col h-screen p-4 w-full mt-32 mb-32'>
+      <HeaderHome/>
+      <div className="container mx-auto">
+        <h2 className="text-2xl text-[#0061FF] ml-5 mt-16 lg:mt-5">Pasta {folder}</h2>
+        <button
+        onClick={() => router.back()} // Volta para a página anterior
+        className="flex items-center text-blue-500 hover:text-blue-700 space-x-2">
+        <img
+          src="/icons/back.svg" // Atualize o caminho para o seu ícone
+          alt="Voltar"
+          className="w-5 h-5 m-5"
+        />
+        </button>
+        <div id="whiteForm" className="flex flex-wrap m-10 gap-6 p-5 rounded-xs rounded-sm rounded-md rounded-lg shadow-md bg-gray-50">
           {years.map((year, index) => (
             <div
               key={index}
@@ -53,7 +63,7 @@ const FolderPage = () => {
             >
               <CardPastas
                 title={year}
-                subtitle="Clique para acessar"
+                //subtitle="Clique para acessar"
               />
             </div>
           ))}

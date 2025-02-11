@@ -18,7 +18,11 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://127.0.0.1:3010/user/login', { cpf, senha });
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3010';
+
+      //const response = await axios.post('http://127.0.0.1:3010/user/login', { cpf, senha });
+      const response = await axios.post(`${API_BASE_URL}/user/login`, { cpf, senha });
+
       const { token, user } = response.data;
   
       localStorage.setItem('token', token); // Store token for later use

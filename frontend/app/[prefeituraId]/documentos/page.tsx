@@ -9,6 +9,8 @@ import { RootState } from '@/app/store/store';
 import PesquisaOCR from '@/app/components/pesquisaOCR';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
 import Header from '@/app/components/header';
+import HeaderHome from '@/app/components/headerHome';
+import LoadingEffect from '@/app/components/loading';
 
 const API_URL = process.env.PORT || "http://localhost:3010";
 
@@ -33,15 +35,17 @@ const DocumentosRootPage = () => {
     fetchFolders();
   }, []);
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <LoadingEffect/>;
 
   return (
     <ProtectedRoute>
       <div className='flex flex-col h-screen'>
-        <Header/>
-        <div className="container mx-auto p-4">
-          <div className="flex flex-wrap justify-center gap-6">
-           \
+        <HeaderHome/>
+        
+        <div className="container mx-auto p-4 w-full mt-32 mb-32">
+        <h1 className="text-2xl font- text-[#0061FF] mb-10 ml-7 mt-20 sm:mt-0">Meus Arquivos</h1>
+
+          <div id="whiteForm" className="flex flex-wrap m-10 gap-6 p-5 rounded-lg rounded-sm rounded-md rounded-lg shadow-md bg-gray-50">
           {/* <PesquisaOCR /> */}
             {folders.map((folder, index) => (
               
@@ -53,11 +57,10 @@ const DocumentosRootPage = () => {
                 
                 <CardPastas
                   title={folder}
-                  subtitle="Clique para acessar"
+                  
                 />
               </div>
             ))}
-             <h1>Ola</h1> 
           </div>
         </div>
       </div>

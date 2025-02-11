@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.741.0",
     "@aws-sdk/s3-request-presigner": "^3.741.0",
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.3.1",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -34,11 +34,8 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pdf-parse": "^1.1.4",
     "nodemon": "^3.1.9",
-    "prisma": "^6.2.1",
+    "prisma": "^6.3.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"
-  },
-  "prisma": {
-    "schema": "/Users/pedrotorrezani/Documents/Programacao/digitalizador/backend/prisma/schema.prisma"
   }
 }

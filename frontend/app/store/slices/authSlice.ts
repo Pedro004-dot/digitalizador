@@ -5,6 +5,10 @@ const isClient = typeof window !== "undefined";
 interface AuthState {
   token: string | null;
   user: {
+    cidade: string ; 
+    telefone: string;
+    email: string;
+    avatar: string; //foto a ser colocada no perfil
     id: string;
     nome: string;
     cpf: string;

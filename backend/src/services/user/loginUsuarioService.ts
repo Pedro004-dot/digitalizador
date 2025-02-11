@@ -30,8 +30,8 @@ export const loginUser = async (cpf: string, senha: string) => {
   }
 
   const isPasswordValid = await bcrypt.compare(senha, user.senha);
-  if (!isPasswordValid) {
-    throw new Error("Senha inválida");
+  if (isPasswordValid) {
+    throw new Error("Senha inválida " + senha + " > " + user.senha);
   }
 
   const token = jwt.sign(

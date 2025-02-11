@@ -33,7 +33,7 @@ const Header = () => {
         <img
           src="/icons/back.svg" // Atualize o caminho para o seu ícone
           alt="Voltar"
-          className="w-5 h-5"
+          className="w-5 h-5 m-5"
         />
       </button>
     </div>

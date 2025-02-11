@@ -5,10 +5,10 @@ import { RootState } from '../../store/store';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ProtectedRoute from '../../components/ProtectedRoute';
-import HeaderHome from '@/app/components/headerHome';
 import axios from 'axios';
 import ArquivosHome from '@/app/components/arquivosHome';
 import CardPastas from '@/app/components/cardPastas';
+import LoadingEffect from '@/app/components/loading';
 
 const API_URL = process.env.PORT || "http://localhost:3010";
 
@@ -81,19 +81,18 @@ export default function HomePage() {
   return (
     <ProtectedRoute>
   <div className="w-full flex justify-center bg-white">
-    
-    <div className="w-full max-w-[1400px] bg-white">
       {/* Header */}
-      <HeaderHome />
+
+    
+    <div className="w-full mt-40 lg:mt-10 mb-2">
 
       {loadingFolders ? (
-        <p>Carregando pastas...</p>
+           <LoadingEffect/>
       ) : (
-        <div className="w-full mt-32 mb-32">
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[1400px] mx-auto"
-          >
-            {folders.length > 0 ? (
+        //quadro de pastas tela inicial
+        <div className="w-full mt-8 md:mt-12 lg:mt-16 mb-2">
+<div className="flex flex-wrap justify-center gap-6 p-5 rounded-xs rounded-sm rounded-md rounded-lg mx-auto">
+{folders.length > 0 ? (
               folders.map((folder, index) => (
                 <div
                   key={index}
@@ -104,16 +103,24 @@ export default function HomePage() {
                 </div>
               ))
             ) : (
-              <p className="col-span-full text-center">Nenhuma pasta encontrada.</p>
+              <p className="text-center">Nenhuma pasta encontrada.</p>
             )}
           </div>
         </div>
       )}
 
+      <div className="flex justify-center my-8 ">
+        <div className="w-1/2 border-t border-gray-300"></div>
+      </div>
+
       {/* Arquivos Recentes */}
       <div className="mt-30 max-w-[1400px] mx-auto w-full">
         {loadingFiles ? (
-          <p>Carregando arquivos recentes...</p>
+          <div className="space-y-4">
+            <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
         ) : (
           <ArquivosHome files={recentFiles} />
         )}

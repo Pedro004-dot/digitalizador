@@ -9,3 +9,17 @@ body {
   padding: 0;
   background-color: #FFFFFF  !important;
 }
+
+main, aside {
+  background-color: #FFFFFF !important;
+  opacity: 1 !important;
+}
+
+#header, #whiteForm{
+  opacity: 1 !important;
+  background-color: rgb(255, 255, 255);
+}
+
+#textWhite{
+  color: white;
+}
