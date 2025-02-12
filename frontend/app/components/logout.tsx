@@ -10,13 +10,14 @@ const LogoutButton = () => {
 
   const handleLogout = () => {
     dispatch(logout()); 
+    console.log("saindo")
     localStorage.removeItem("token"); 
     router.push("/login"); 
   };
 
   return (
   <button
-    onClick={handleLogout}
+    onClick={()=>{handleLogout}}
     className="focus:outline-none"
   >
     <p id="textWhite">Sair</p>

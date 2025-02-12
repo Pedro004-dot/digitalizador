@@ -91,8 +91,8 @@ export default function HomePage() {
       ) : (
         //quadro de pastas tela inicial
         <div className="w-full mt-8 md:mt-12 lg:mt-16 mb-2">
-<div className="flex flex-wrap justify-center gap-6 p-5 rounded-xs rounded-sm rounded-md rounded-lg mx-auto">
-{folders.length > 0 ? (
+          <div className="flex flex-wrap justify-center gap-6 p-5 rounded-xs rounded-sm rounded-md rounded-lg mx-auto">
+          {folders.length > 0 ? (
               folders.map((folder, index) => (
                 <div
                   key={index}
@@ -109,9 +109,9 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="flex justify-center my-8 ">
+      {/* <div className="flex justify-center my-8 ">
         <div className="w-1/2 border-t border-gray-300"></div>
-      </div>
+      </div> */}
 
       {/* Arquivos Recentes */}
       <div className="mt-30 max-w-[1400px] mx-auto w-full">

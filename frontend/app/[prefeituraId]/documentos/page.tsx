@@ -6,9 +6,7 @@ import axios from 'axios';
 import CardPastas from '../../components/cardPastas';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/app/store/store';
-import PesquisaOCR from '@/app/components/pesquisaOCR';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
-import Header from '@/app/components/header';
 import HeaderHome from '@/app/components/headerHome';
 import LoadingEffect from '@/app/components/loading';
 

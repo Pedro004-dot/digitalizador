@@ -30,7 +30,7 @@ export const loginUser = async (cpf: string, senha: string) => {
   }
 
   const isPasswordValid = await bcrypt.compare(senha, user.senha);
-  if (isPasswordValid) {
+  if (!isPasswordValid) {
     throw new Error("Senha inválida " + senha + " > " + user.senha);
   }
 

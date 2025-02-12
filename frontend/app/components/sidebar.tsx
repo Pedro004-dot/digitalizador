@@ -64,7 +64,7 @@ const Sidebar = () => {
           {/* Logo */}
           <div className="absolute top-4 left-6 flex items-center space-x-4">
             <img src="/icons/logo.svg" alt="Logo" className="w-10 h-10" />
-            <h1 className="text-xl font-bold">ITA</h1>
+            <h1 className="text-xl font-bold">ITA DIGITALIZA</h1>
           </div>
 
           {/* Navegação */}
