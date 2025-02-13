@@ -22,12 +22,13 @@ export default function HomePage() {
   const [recentFiles, setRecentFiles] = useState<any[]>([]); // Ajustado para ser um array de objetos com informações dos arquivos
   const router = useRouter();
   const pathname = usePathname();
+  const [recen, setRecen] = useState<any[]>([]);
 
   // Função para buscar pastas do nível 1
   const fetchFolders = async () => {
     try {
       const response = await axios.get(`${API_URL}/aws/folders-level1`);
-      console.log(`${API_URL}/aws/folders-level1`)
+      // console.log(`${API_URL}/aws/folders-level1`)
       setFolders(response.data);
     } catch (error) {
       console.error('Erro ao buscar pastas de nível 1:', error);
@@ -37,25 +38,35 @@ export default function HomePage() {
   };
 
   // Função para buscar arquivos recentes
-  const fetchRecentFiles = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/aws/recent-files`);
-      const formattedFiles = response.data
-        .filter((file: any) => !file.name.endsWith('/')) // Filtra apenas os arquivos (sem "/")
-        .map((file: any) => ({
-          name: file.name.split('/').pop() || 'Arquivo Desconhecido',
-          size: file.size ? (file.size / 1024).toFixed(2) + ' KB' : 'Tamanho Desconhecido',
-          modified: file.lastModified
-            ? new Date(file.lastModified).toLocaleDateString('pt-BR')
-            : 'Data Desconhecida',
-        }));
-      setRecentFiles(formattedFiles);
-    } catch (error) {
-      console.error('Erro ao buscar arquivos recentes:', error);
-    } finally {
-      setLoadingFiles(false);
-    }
-  };
+// Exemplo no seu fetchRecentFiles
+const fetchRecentFiles = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/aws/recent-files`);
+
+    const formattedFiles = response.data
+      .filter((file: any) => !file.key.endsWith("/"))
+      .map((file: any) => ({
+        key: file.key,
+        // Exibe apenas o nome sem as pastas
+        name: file.key.split("/").pop() || "Arquivo Desconhecido",
+        size: file.size ? (file.size / 1024).toFixed(2) + " KB" : "Tamanho Desconhecido",
+        // lastModified formatado
+        modified: file.lastModified
+          ? new Date(file.lastModified).toLocaleDateString("pt-BR")
+          : "Data Desconhecida",
+        // creationDate formatado
+        creationDate: file.createdAt 
+          ? new Date(file.createdAt).toLocaleDateString("pt-BR")
+          : "Data de criação não disponível",
+      }));
+      setRecen(formattedFiles);
+    setRecentFiles(formattedFiles);
+  } catch (error) {
+    console.error("Erro ao buscar arquivos recentes:", error);
+  } finally {
+    setLoadingFiles(false);
+  }
+};
 
   // Validação de autenticação e busca de dados
   useEffect(() => {
@@ -122,7 +133,7 @@ export default function HomePage() {
             <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
           </div>
         ) : (
-          <ArquivosHome files={recentFiles} />
+          <ArquivosHome files={recen} />
         )}
       </div>
     </div>

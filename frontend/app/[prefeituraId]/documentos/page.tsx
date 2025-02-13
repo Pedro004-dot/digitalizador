@@ -43,7 +43,7 @@ const DocumentosRootPage = () => {
         <div className="container mx-auto p-4 w-full mt-32 mb-32">
         <h1 className="text-2xl font- text-[#0061FF] mb-10 ml-7 mt-20 sm:mt-0">Meus Arquivos</h1>
 
-          <div id="whiteForm" className="flex flex-wrap m-10 gap-6 p-5 rounded-lg rounded-sm rounded-md rounded-lg shadow-md bg-gray-50">
+          <div id="whiteForm" className="flex flex-wrap justify-center  m-10 gap-6 p-5 rounded-lg rounded-sm rounded-md rounded-lg shadow-md ">
           {/* <PesquisaOCR /> */}
             {folders.map((folder, index) => (
               

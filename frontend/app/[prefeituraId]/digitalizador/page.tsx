@@ -1,5 +1,5 @@
 'use client';
-
+import { v4 as uuidv4 } from 'uuid';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
@@ -54,13 +54,31 @@ const DigitalizarPage = () => {
       alert('Preencha todos os campos antes de enviar.');
       return;
     }
-
+  
+    // Define um prefixo para o nome do arquivo, dependendo da pasta
+    let prefix = 'documento';
+    if (folder === 'Licitações') {
+      prefix = 'licitacao';
+    } else if (folder === 'Diversos') {
+      prefix = 'diverso';
+    } else if (folder === 'Empenhos') {
+      prefix = 'empenho';
+    }
+  
+    // Extrai a extensão do arquivo original (se quiser manter .pdf somente, pode fixar '.pdf')
+    const originalName = selectedFile.name;
+    const hasExtension = originalName.lastIndexOf('.') !== -1;
+    const extension = hasExtension ? originalName.slice(originalName.lastIndexOf('.')) : '.pdf';
+  
+    // Monta o novo nome com prefixo + uuid + extensão
+    const newFileName = `${prefix}-${uuidv4()}${extension}`;
+  
     const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('folder', folder);
-    formData.append('year', year);
-    formData.append('filename', selectedFile.name);
-
+    formData.append('file', selectedFile);    // Arquivo em si
+    formData.append('folder', folder);        // Pasta
+    formData.append('year', year);            // Ano
+    formData.append('filename', newFileName); // <-- Substituímos o selectedFile.name pelo nome gerado
+  
     try {
       await axios.post(`${API_URL}/aws/files/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -89,6 +107,11 @@ const DigitalizarPage = () => {
     setYear('');
     setCurrentStep(1);
   };
+  const currentYear = new Date().getFullYear();
+  const years = []; 
+  for (let y = 2010; y <= currentYear; y++) {
+    years.push(y);
+  }
 
   return (
     <ProtectedRoute>
@@ -109,30 +132,64 @@ const DigitalizarPage = () => {
             <div className="m-10 border-t border-gray-300"></div>
             {currentStep === 1 && (
               <div>
-                <label className="block mb-2 text-sm font-medium">Pasta</label>
-                <input
-                  type="text"
-                  placeholder="Selecione a pasta"
-                  className="w-full p-2 border rounded"
-                  value={folder}
-                  onChange={(e) => setFolder(e.target.value)}
-                />
-                <label className="block mt-4 mb-2 text-sm font-medium">Ano</label>
-                <input
-                  type="text"
-                  placeholder="Selecione o ano"
-                  className="w-full p-2 border rounded"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                />
-                <button
-                  id="textWhite"
-                  className="absolute font-bold bottom-4 left-8 r-0 py-2 px-4 bg-blue-500 rounded hover:bg-blue-600"
-                  onClick={() => setCurrentStep(2)}
-                >
-                  CONTINUAR
-                </button>
-              </div>
+              <label className="block mb-2 text-sm font-medium">Pasta</label>
+              <select
+                className="
+                  w-full 
+                  p-2 
+                  border 
+                  rounded 
+                  text-gray-900 
+                  placeholder-gray-400 
+                  focus:outline-none 
+                  focus:ring-2 
+                  focus:ring-blue-500 
+                  focus:border-blue-500
+                  bg-white
+                  appearance-none
+                "
+                value={folder}
+                onChange={(e) => setFolder(e.target.value)}
+              >
+                <option value="">Selecione a pasta</option>
+                <option value="Licitações">Licitações</option>
+                <option value="Diversos">Diversos</option>
+                <option value="Empenhos">Empenhos</option>
+              </select>
+          
+              <label className="block mt-4 mb-2 text-sm font-medium">Ano</label>
+              <select
+                className="
+                  w-full 
+                  p-2 
+                  border 
+                  rounded 
+                  text-gray-900 
+                  placeholder-gray-400 
+                  focus:outline-none 
+                  focus:ring-2 
+                  focus:ring-blue-500 
+                  focus:border-blue-500
+                  bg-white
+                  appearance-none
+                "
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+              >
+                <option value="">Selecione o ano</option>
+                {years.map((ano) => (
+                  <option key={ano} value={ano}>{ano}</option>
+                ))}
+              </select>
+          
+              <button
+                id="textWhite"
+                className="absolute font-bold bottom-4 left-8 r-0 py-2 px-4 bg-blue-500 rounded hover:bg-blue-600"
+                onClick={() => setCurrentStep(2)}
+              >
+                CONTINUAR
+              </button>
+            </div>
             )}
             {currentStep === 2 && (
               <div>

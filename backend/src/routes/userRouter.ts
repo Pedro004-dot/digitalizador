@@ -11,6 +11,8 @@ router.post("/create", createUserController.createUser);
 
 router.get("/getCPF",isAuthenticate ,getUsuarioController.getUserByCPF);
 
+router.get("/email/:email",isAuthenticate ,getUsuarioController.getUserByEmail);
+
 router.get("/getPrefeitura",isAuthenticate , getUsuarioController.getUsersByPrefeitura);
 
 router.get("/getAll",isAuthenticate , getUsuarioController.getAllUsers)
@@ -18,6 +20,7 @@ router.get("/getAll",isAuthenticate , getUsuarioController.getAllUsers)
 router.delete("/delete",isAuthenticate , deleteUsuarioController.deleteUser);
 
 router.post("/login", login);
+
 
 
 export default router;

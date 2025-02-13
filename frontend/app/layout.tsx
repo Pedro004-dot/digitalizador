@@ -18,11 +18,12 @@ export default function RootLayout({
   const pathname = usePathname();
 
   const isLoginPage = pathname === '/login';
+  const isCriarContaPage = pathname === '/criarConta';
   return (
     <html lang="pt">
       <body className="bg-white" >
         <Provider store={store}>
-          {isLoginPage ? (
+          {(isLoginPage || isCriarContaPage) ? (
               // Apenas renderiza o conteúdo sem a sidebar
               <div className="h-screen">{children}</div>
             ) : (

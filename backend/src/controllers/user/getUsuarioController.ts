@@ -17,6 +17,26 @@ const getUserByCPF = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: "Erro ao buscar usuário por CPF" });
   }
 };
+ const getUserByEmail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.params; // Pegamos o email do params da URL
+
+    if (!email) {
+       res.status(400).json({ message: "O email é obrigatório." });
+    }
+
+    const user = await userService.findUserByEmail(email);
+
+    if (!user) {
+       res.status(404).json({ message: "Usuário não encontrado." });
+    }
+
+     res.json(user);
+  } catch (error) {
+    console.error("Erro ao buscar usuário:", error);
+     res.status(500).json({ message: "Erro interno do servidor." });
+  }
+};
 const getAllUsers = async (req: Request, res: Response): Promise<void> => {
     try {
       const prefeituras = await userService.getAllUsers();
@@ -50,4 +70,4 @@ const getUsersByPrefeitura = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export default { getUserByCPF, getUsersByPrefeitura, getAllUsers };
+export default { getUserByCPF, getUsersByPrefeitura, getAllUsers,getUserByEmail };

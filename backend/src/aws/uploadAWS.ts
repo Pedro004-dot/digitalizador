@@ -19,7 +19,7 @@ const s3 = new S3Client({
  * @param contentType Tipo de conteúdo do arquivo (MIME Type)
  * @returns URL do arquivo carregado no S3
  */
-const uploadFileToS3 = async (
+ const uploadFileToS3 = async (
   bucketName: string,
   key: string,
   fileBuffer: Buffer,
@@ -31,14 +31,16 @@ const uploadFileToS3 = async (
       Key: key,
       Body: fileBuffer,
       ContentType: contentType,
+      Metadata: {
+        // Aqui adicionamos a data de criação
+        createdAt: new Date().toISOString(),
+      },
     });
 
-    // Faz o upload do arquivo
     await s3.send(command);
 
     console.log(`✅ Arquivo "${key}" enviado com sucesso para o S3!`);
 
-    // Retorna a URL do arquivo no S3
     return `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
   } catch (error) {
     console.error("❌ Erro ao fazer upload:", error);

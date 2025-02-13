@@ -17,6 +17,27 @@ const getUserByCPF = async (cpf: string) => {
   return usuario;
 };
 
+ const findUserByEmail = async (email: string) => {
+  if (!email) throw new Error("O email é obrigatório.");
+
+  const user = await prisma.usuarios.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      nome: true,
+      sobrenome: true,
+      email: true,
+      cpf: true,
+      prefeituraId: true,
+      prefeitura: {
+        select: { cidade: true },
+      },
+    },
+  });
+
+  return user;
+};
+
 const getAllUsers = async () => {
   return await prisma.usuarios.findMany({
     include: {
@@ -34,4 +55,4 @@ const getUsersByPrefeitura = async (prefeituraId: string) => {
   });
 };
 
-export default { getUserByCPF, getAllUsers, getUsersByPrefeitura };
+export default { getUserByCPF, getAllUsers, getUsersByPrefeitura,findUserByEmail };

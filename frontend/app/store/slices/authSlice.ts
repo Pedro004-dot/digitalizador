@@ -5,29 +5,28 @@ const isClient = typeof window !== "undefined";
 interface AuthState {
   token: string | null;
   user: {
-    cidade: string ; 
-    telefone: string;
-    email: string;
-    avatar: string; //foto a ser colocada no perfil
     id: string;
     nome: string;
+    sobrenome: string; // ✅ Adicionado sobrenome
+    email: string;
     cpf: string;
     prefeituraId: string;
+    cidade: string;
   } | null;
   isAuthenticated: boolean;
 }
 
-const initialState:AuthState = {
+const initialState: AuthState = {
   token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
   user: null,
-  isAuthenticated: isClient && !!localStorage.getItem("token")
+  isAuthenticated: typeof window !== 'undefined' && !!localStorage.getItem("token")
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    login(state, action) {
+    login(state, action: PayloadAction<{ token: string; user: AuthState['user'] }>) {
       state.token = action.payload.token;
       state.user = action.payload.user;
       state.isAuthenticated = true;

@@ -6,6 +6,7 @@ import documentoRouter from './routes/documentoRouter';
 import cors from 'cors';
 import router from './routes/testeRouter';
 import routerAWS from './routes/awsRouter';
+import routerAuth from './routes/authRouter';
 
 const app = express();
 
@@ -34,6 +35,8 @@ app.use('/user', userRoutes);
 app.use('/prefeitura', prefeituraRouter);
 app.use('/documento', documentoRouter);
 app.use('/aws',routerAWS)
+app.use('/auth',routerAuth)
+// app.use('/auth',routerAuth)
 
 // Conectar ao banco de dados antes de iniciar o servidor
 prisma.$connect()

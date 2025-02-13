@@ -15,6 +15,7 @@ const API_URL = process.env.PORT || "http://localhost:3010";
 const FolderPage = () => {
     const user = useSelector((state: RootState) => state.auth.user);
   const { folder } = useParams();
+  const decodedFolder = decodeURIComponent(folder as string)
   const [years, setYears] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -43,7 +44,7 @@ const FolderPage = () => {
       <div className='flex flex-col h-screen p-4 w-full mt-32 mb-32'>
       <HeaderHome/>
       <div className="container mx-auto">
-        <h2 className="text-2xl text-[#0061FF] ml-5 mt-16 lg:mt-5">Pasta {folder}</h2>
+        <h2 className="text-2xl text-[#0061FF] ml-5 mt-16 lg:mt-5">Pasta {decodedFolder}</h2>
         <button
         onClick={() => router.back()} // Volta para a página anterior
         className="flex items-center text-blue-500 hover:text-blue-700 space-x-2">
@@ -53,7 +54,7 @@ const FolderPage = () => {
           className="w-5 h-5 m-5"
         />
         </button>
-        <div id="whiteForm" className="flex flex-wrap m-10 gap-6 p-5 rounded-xs rounded-sm rounded-md rounded-lg shadow-md bg-gray-50">
+        <div id="whiteForm" className="flex flex-wrap m-10 justify-center gap-6 p-5 rounded-xs rounded-sm rounded-md rounded-lg shadow-md bg-gray-50">
           {years.map((year, index) => (
             <div
               key={index}

@@ -14,7 +14,7 @@ prefeituraRouter.get("/getById",isAuthenticate , getPrefeituraController.getPref
 
 prefeituraRouter.get("/getByName",isAuthenticate , getPrefeituraController.getPrefeituraByCidade);
 
-prefeituraRouter.get("/allPrefeituras",isAuthenticate ,getPrefeituraController.getAllPrefeituras)
+prefeituraRouter.get("/allPrefeituras" ,getPrefeituraController.getAllPrefeituras)
 
 prefeituraRouter.delete("/delete",isAuthenticate ,deletePrefeituraController.deletePrefeitura);
 

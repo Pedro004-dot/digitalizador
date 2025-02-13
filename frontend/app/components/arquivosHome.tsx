@@ -1,8 +1,11 @@
 'use client';
 
 import axios from 'axios';
+import { useState } from 'react';
+import ModalSendEmail from './modalEmail';
 
 interface FileData {
+  key:string;
   name: string;
   size: string;
   modified: string;
@@ -11,9 +14,11 @@ interface FileData {
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3010";
+ 
 
 // Função para baixar o arquivo
 const handleDownload = async (fileName: string) => {
+  
   try {
     const encodedFileName = encodeURIComponent(fileName);
     const response = await axios.get(`${API_URL}/aws/download/${encodedFileName}`, {
@@ -51,12 +56,16 @@ const handleView = async (fileName: string) => {
 };
 
 // Função para enviar o arquivo por email (exemplo de estrutura)
-const handleEmail = (fileName: string) => {
-  console.log(`Enviando ${fileName} por email...`);
-  // Implementar a lógica de envio por email
-};
+
+
 
 const MeusArquivos: React.FC<{ files: FileData[] }> = ({ files }) => {
+  const [selectedFile, setSelectedFile] = useState<string | null>(null); 
+  const handleEmail = (fileName: string) => {
+  
+    // console.log(`Abrindo modal para enviar o arquivo: ${fileName}`);
+    setSelectedFile(fileName); 
+  };
   return (
     <div className="m-5 w-full">
       {/* Título */}
@@ -122,7 +131,7 @@ const MeusArquivos: React.FC<{ files: FileData[] }> = ({ files }) => {
                       <div className="flex items-center justify-center gap-4">
                         {/* Ícone de visualização */}
                         <button
-                          onClick={() => handleView(file.name)}
+                          onClick={() => handleView(file.key)}
                           className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
                         >
                           <img
@@ -134,7 +143,7 @@ const MeusArquivos: React.FC<{ files: FileData[] }> = ({ files }) => {
 
                         {/* Ícone de email */}
                         <button
-                          onClick={() => handleEmail(file.name)}
+                          onClick={() => handleEmail(file.key)}
                           className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
                         >
                           <img
@@ -146,7 +155,7 @@ const MeusArquivos: React.FC<{ files: FileData[] }> = ({ files }) => {
 
                         {/* Ícone de download */}
                         <button
-                          onClick={() => handleDownload(file.name)}
+                          onClick={() => handleDownload(file.key)}
                           className="text-green-600 hover:text-green-800 transition-colors duration-200"
                         >
                           <img
@@ -169,6 +178,12 @@ const MeusArquivos: React.FC<{ files: FileData[] }> = ({ files }) => {
             </tbody>
           </table>
         </div>
+        {selectedFile && (
+        <ModalSendEmail
+          fileName={selectedFile}
+          onClose={() => setSelectedFile(null)} // Fecha o modal
+        />
+      )}
       </div>
     </div>
   );

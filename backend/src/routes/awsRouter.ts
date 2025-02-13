@@ -133,7 +133,7 @@ routerAWS.get('/files/download/:folder/:year/:filename', async (req, res) => {
     }
 });
 
-  routerAWS.get('/aws/files/view/:folder/:year/:filename', async (req, res) => {
+  routerAWS.get('/files/view/:folder/:year/:filename', async (req, res) => {
     const { folder, year, filename } = req.params;
   
     try {

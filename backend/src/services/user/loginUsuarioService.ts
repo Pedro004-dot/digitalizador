@@ -5,15 +5,17 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const loginUser = async (cpf: string, senha: string) => {
+export const loginUser = async (email: string, senha: string) => {
   // Busca o usuário pelo CPF, incluindo os dados da prefeitura
   const user = await prisma.usuarios.findUnique({
-    where: { cpf },
+    where: { email },
     select: {
       id: true,
       cpf: true,
       nome: true,
       senha: true,
+      sobrenome: true,
+      email:true,
       permissoes: true,
       prefeituraId: true, // Incluindo prefeituraId na consulta
       prefeitura: {
@@ -38,7 +40,9 @@ export const loginUser = async (cpf: string, senha: string) => {
     {
       id: user.id,
       cpf: user.cpf,
+      email:user.email,
       prefeituraId: user.prefeituraId, 
+      sobrenome: true,
       nome: user.nome,
       permissoes: user.permissoes,
     },
@@ -52,6 +56,8 @@ export const loginUser = async (cpf: string, senha: string) => {
       id: user.id,
       cpf: user.cpf,
       nome: user.nome,
+      sobrenome: true,
+      email:user.email,
       prefeituraId: user.prefeituraId, 
       permissoes: user.permissoes,
       prefeitura: user.prefeitura

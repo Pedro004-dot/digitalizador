@@ -11,8 +11,12 @@ model Usuarios {
   id          String      @id @default(uuid())
   cpf         String      @unique
   nome        String
+  sobrenome   String
   senha       String
+  email       String      @unique
   permissoes  String
+  resetToken        String?  // Token de recuperação opcional
+  resetTokenExpires DateTime? // Expiração do token precisa ser `DateTime`
   prefeitura  Prefeituras? @relation(fields: [prefeituraId], references: [id])
   prefeituraId String?     
   createdAt   DateTime    @default(now())

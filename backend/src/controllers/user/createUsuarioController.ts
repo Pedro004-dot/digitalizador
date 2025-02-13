@@ -3,11 +3,13 @@ import userService from "../../services/user/createUsuarioService";
 
 const createUser = async (req: Request, res: Response) => {
   try {
-    const { cpf, nome, senha, prefeituraId, permissoes } = req.body;
+    const { cpf, nome,email, sobrenome, senha, prefeituraId, permissoes } = req.body;
     const novoUsuario = await userService.createUser({
       cpf,
       nome,
       senha,
+      sobrenome,
+      email,
       prefeituraId,
       permissoes,
     });

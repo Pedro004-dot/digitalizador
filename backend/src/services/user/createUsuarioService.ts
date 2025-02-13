@@ -27,23 +27,34 @@ const validarCPF = (cpf: string): boolean => {
 interface CreateUserInput {
   cpf: string;
   nome: string;
+  sobrenome: string; // Novo campo
+  email: string; // Novo campo
   senha: string;
-  prefeituraId?: string;
-  permissoes: string;
+  prefeituraId: string;
+  permissoes?: string;
 }
 
 const createUser = async (data: CreateUserInput) => {
-  const { cpf, nome, senha, prefeituraId, permissoes } = data;
+  const { cpf, nome, sobrenome, email, senha, prefeituraId, permissoes } = data;
 
+  // 🔍 Verifica se o CPF é válido
   if (!validarCPF(cpf)) {
     throw new Error("O CPF fornecido é inválido.");
   }
 
+  // 🔍 Verifica se o CPF já está cadastrado
   const cpfExistente = await prisma.usuarios.findUnique({ where: { cpf } });
   if (cpfExistente) {
     throw new Error("O CPF já está cadastrado.");
   }
 
+  // 🔍 Verifica se o e-mail já está cadastrado
+  const emailExistente = await prisma.usuarios.findUnique({ where: { email } });
+  if (emailExistente) {
+    throw new Error("O e-mail já está cadastrado.");
+  }
+
+  // 🔍 Verifica se a prefeitura informada existe
   if (prefeituraId) {
     const prefeitura = await prisma.prefeituras.findUnique({ where: { id: prefeituraId } });
     if (!prefeitura) {
@@ -51,19 +62,23 @@ const createUser = async (data: CreateUserInput) => {
     }
   }
 
+  // 🔐 Hash da senha
   const hashedPassword = await bcrypt.hash(senha, 10);
 
-  // Criação do usuário
+  // ✅ Criação do usuário
   const novoUsuario = await prisma.usuarios.create({
     data: {
       cpf,
       nome,
+      sobrenome, 
+      email, 
       senha: hashedPassword,
-      permissoes,
+      permissoes: "usuario",
       prefeituraId: prefeituraId || null,
     },
   });
 
   return novoUsuario;
 };
+
 export default { createUser };

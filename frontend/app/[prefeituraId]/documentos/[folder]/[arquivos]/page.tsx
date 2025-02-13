@@ -7,6 +7,7 @@ import ProtectedRoute from '@/app/components/ProtectedRoute';
 import LoadingEffect from '@/app/components/loading';
 import HeaderHome from '@/app/components/headerHome';
 import { useRouter } from 'next/navigation';
+import ModalSendEmail from '@/app/components/modalEmail';
 
 interface FileData {
   name: string;
@@ -22,6 +23,8 @@ const ArquivosPage = () => {
     const router = useRouter();
   
   const { folder } = useParams();
+  const decodedFolder = decodeURIComponent(folder as string)
+
   const searchParams = useSearchParams();
   const year = searchParams.get('year'); // Obtém "2025" da URL
 
@@ -30,19 +33,32 @@ const ArquivosPage = () => {
 
   useEffect(() => {
     const fetchFiles = async () => {
+      // Se folder ou year estiver vazio, não faz nada
       if (!folder || !year) return;
 
       try {
+        // Chama sua rota de listagem de arquivos
         const response = await axios.get(`${API_URL}/aws/files/${folder}/${year}`);
+
+        // Mapeia os resultados do backend
         const formattedFiles = response.data.map((file: any) => ({
-          name: file.Key.split('/').pop(), // Nome do arquivo
-          size: (file.Size / 1024).toFixed(2) + ' KB', // Tamanho em KB
-          modified: new Date(file.LastModified).toLocaleDateString('pt-BR'), // Data última modificação
-          creationDate: new Date(file.CreationDate).toLocaleDateString('pt-BR'), // Data de criação
+          name: file.Key.split("/").pop(), // Nome do arquivo
+          size: (file.Size / 1024).toFixed(2) + " KB", // Tamanho em KB
+          // LastModified → data de última modificação
+          modified: file.LastModified
+            ? new Date(file.LastModified).toLocaleDateString("pt-BR")
+            : "",
+          // CreatedAtMeta → data real de criação, salva no metadata
+          creationDate: file.CreatedAtMeta
+            ? new Date(file.CreatedAtMeta).toLocaleDateString("pt-BR")
+            : "",
+          // Se quiser também o CreationDay (lastModified formatado),
+          // poderia usar: creationDay: file.CreationDay
         }));
+
         setFiles(formattedFiles);
       } catch (error) {
-        console.error('Erro ao buscar arquivos:', error);
+        console.error("Erro ao buscar arquivos:", error);
       } finally {
         setLoading(false);
       }
@@ -51,7 +67,11 @@ const ArquivosPage = () => {
     fetchFiles();
   }, [folder, year]);
 
+const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState(false)
   const handleDownload = async (fileName: string) => {
+    ;
+
     try {
       const response = await axios.get(`${API_URL}/aws/files/download/${folder}/${year}/${fileName}`, {
         responseType: 'blob', // Recebe o arquivo em formato binário
@@ -70,6 +90,18 @@ const ArquivosPage = () => {
       console.error('Erro ao fazer download do arquivo:', error);
     }
   };
+  const handleOpenEmail = (fileName: string) => {
+    // Define qual arquivo queremos enviar
+    setSelectedFileName(fileName);
+    // Exibe o modal
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedFileName(null);
+  };
+  
 
   const handleView = async (fileName: string) => {
     try {
@@ -86,17 +118,14 @@ const ArquivosPage = () => {
 
   if (loading) return <div><LoadingEffect/></div>;
 
-  function handleEmail(name: string): void {
-    throw new Error('Function not implemented.');
-    //implementar função
-  }
+
 
   return (
     <ProtectedRoute>
       <div className="flex flex-col mt-32 mb-32 p-5 h-screen">
           <HeaderHome/>
           <h1 className="text-2xl text-[#0061FF] mt-20 lg:mt-5">
-            Arquivos em "{folder}" no ano de {year}
+            Arquivos em {decodedFolder} no ano de {year}
           </h1>
           <button
         onClick={() => router.back()} // Volta para a página anterior
@@ -179,7 +208,7 @@ const ArquivosPage = () => {
 
                             {/* Ícone de email */}
                             <button
-                              onClick={() => handleEmail(file.name)}
+                              onClick={() => handleOpenEmail(file.name)}
                               className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
                             >
                               <img
@@ -214,6 +243,12 @@ const ArquivosPage = () => {
                 </tbody>
               </table>
             </div>
+            {showModal && selectedFileName && (
+        <ModalSendEmail 
+          fileName={selectedFileName} 
+          onClose={handleCloseModal} 
+        />
+      )}
           </div>
     </div>
     </ProtectedRoute>

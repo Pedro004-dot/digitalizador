@@ -16,14 +16,14 @@ const getPrefeituraById = async (id: string) => {
   return prefeitura;
 };
 
-const getAllPrefeituras = async () => {
+export const getAllPrefeituras = async () => {
   return await prisma.prefeituras.findMany({
-    include: {
-      usuarios: true, // Inclui a relação com os usuários
+    select: {
+      id: true,   // 🔹 Retorna apenas o ID
+      cidade: true, // 🔹 Retorna apenas o nome da prefeitura
     },
   });
 };
-
 const getPrefeituraByCidade = async (cidade: string) => {
   return await prisma.prefeituras.findMany({
     where: {

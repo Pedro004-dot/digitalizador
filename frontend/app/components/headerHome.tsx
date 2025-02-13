@@ -4,14 +4,14 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import LogoutButton from "./logout";
+import LogoutButton from "../components/logout";
 
 const HeaderHome = () => {
-  const pathname = usePathname();
+  const userEmail = useSelector((state: RootState) => state.auth.user?.email);
   const prefeitura = useSelector((state: RootState) => state.prefeitura);
   const user = useSelector((state: RootState) => state.auth.user);
   const router = useRouter();
-
+  const cidade = useSelector((state: RootState) => state.auth.user?.cidade);
   const [isOpen, setIsOpen] = useState(false); 
   const [activeTab, setActiveTab] = useState("info"); 
   const [notificationsOpen, setNotificationsOpen] = useState(false); 
@@ -22,6 +22,7 @@ const HeaderHome = () => {
 
   const baseRoute = `/${user.prefeituraId}`;
 
+  console.log(userEmail)
   return (
     <>
       {/* Header */}
@@ -30,7 +31,7 @@ const HeaderHome = () => {
 {/* Título e saudação */}
 <div>
   <h1 className="text-lg sm:text-2xl font-bold text-[#0061FF] ml-0 sm:ml-5">
-    Prefeitura {prefeitura.cidade}
+    Prefeitura {user?.cidade}
   </h1>
   <p className="text-sm sm:text-lg text-gray-500 ml-0 sm:ml-5">
     Bem-vindo, {user?.nome} 👋
@@ -154,18 +155,9 @@ const HeaderHome = () => {
               <div className="bg-white rounded-lg p-6 shadow-sm space-y-4">
                 <div className="flex items-center space-x-3">
                   <img src="/icons/mail.svg" alt="Email" className="w-6 h-6" />
-                  <span className="text-gray-800">{user?.email || "Não informado"}</span>
+                  <span className="text-gray-800">{userEmail || "Não informado"}</span>
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <img src="/icons/phone-call.svg" alt="Telefone" className="w-6 h-6" />
-                  <span className="text-gray-800">{user?.telefone || "Não informado"}</span>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <img src="/icons/cellphone-call.svg" alt="Telefone" className="w-6 h-6" />
-                  <span className="text-gray-800">{user?.telefone || "Não informado"}</span>
-                </div>
 
                 <div className="flex items-center space-x-3">
                   <img src="/icons/homeCinza.svg" alt="Cidade" className="w-6 h-6" />
@@ -180,7 +172,7 @@ const HeaderHome = () => {
                     <label className="block text-sm font-medium text-gray-700">Email</label>
                     <input
                       type="email"
-                      defaultValue={user?.email}
+                      defaultValue={userEmail}
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
@@ -215,9 +207,8 @@ const HeaderHome = () => {
           </div>
 
           {/* Botão de logout */}
-          <button className="w-full mt-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-transform hover:scale-95">
+         
             <LogoutButton />
-          </button>
         </div>
       </div>
     </>

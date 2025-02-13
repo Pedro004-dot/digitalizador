@@ -3,7 +3,7 @@ import { logout } from "./slices/authSlice";
 import { protectedAction } from "./actions"; // Importe sua action creator
 
 export const authMiddleware: Middleware = (storeAPI) => (next) => (action) => {
-  console.log("Action received:", action);
+  // console.log("Action received:", action);
 
   if (protectedAction.match(action)) {
     const state = storeAPI.getState();

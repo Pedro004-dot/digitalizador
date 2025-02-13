@@ -1,4 +1,4 @@
-import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
+import { ListObjectsV2Command, S3Client ,HeadObjectCommand} from "@aws-sdk/client-s3";
 
 
 // Configurações do AWS S3
@@ -62,27 +62,63 @@ export const listFoldersLevel2 = async (folderLevel1: string): Promise<string[]>
   }
 };
 
-  export const listFiles = async (folderLevel1: string, folderLevel2: string): Promise<any[]> => {
-    try {
-      const params = {
-        Bucket: BUCKET_NAME,
-        Prefix: `${folderLevel1}/${folderLevel2}/`, // Obtém arquivos dentro do caminho fornecido
-      };
-  
-      // Comando correto para listar objetos no S3 v3
-      const command = new ListObjectsV2Command(params);
-      const response = await s3.send(command);
-  
-      // Filtra apenas arquivos, excluindo a "pasta" virtual (se existir)
-      const files = response.Contents?.filter((item) => item.Key !== `${folderLevel1}/${folderLevel2}/`) || [];
-  
-      return files.map((file) => ({
-        Key: file.Key, // Caminho completo do arquivo
-        Size: file.Size, // Tamanho do arquivo
-        LastModified: file.LastModified, // Última modificação
-      }));
-    } catch (error) {
-      console.error("❌ Erro ao listar arquivos do S3:", error);
-      throw new Error("Erro ao listar arquivos");
-    }
-  };
+export const listFiles = async (folderLevel1: string, folderLevel2: string): Promise<any[]> => {
+  try {
+    const params = {
+      Bucket: BUCKET_NAME,
+      Prefix: `${folderLevel1}/${folderLevel2}/`,
+    };
+
+    const command = new ListObjectsV2Command(params);
+    const response = await s3.send(command);
+
+    // Filtra apenas arquivos, excluindo a "pasta" virtual
+    const files = response.Contents?.filter(
+      (item) => item.Key !== `${folderLevel1}/${folderLevel2}/`
+    ) || [];
+
+    // Fazemos um map assíncrono para obter metadata de cada arquivo
+    const filesWithMetadata = await Promise.all(
+      files.map(async (file) => {
+        const fileKey = file.Key!;
+        
+        // Busca a metadata via HeadObjectCommand
+        let createdAtMeta: string | null = null;
+        try {
+          const headCommand = new HeadObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: fileKey,
+          });
+          const headResponse = await s3.send(headCommand);
+
+          // Se definimos "createdAt" no upload, estará em headResponse.Metadata?.createdAt
+          createdAtMeta = headResponse.Metadata?.createdat || null;
+          // Observação: A chave no `Metadata` geralmente fica minúscula 
+          // quando recuperada, então teste "createdat" ou "createdAt", 
+          // dependendo de como o S3 retornou.
+        } catch (error) {
+          console.error(`Erro ao obter metadata para ${fileKey}:`, error);
+        }
+
+        // Formata a data para exibição (caso queira em 'pt-BR')
+        const lastModified = file.LastModified;
+        const creationDay = lastModified
+          ? new Date(lastModified).toLocaleDateString("pt-BR")
+          : null;
+
+        return {
+          Key: fileKey,
+          Size: file.Size,
+          LastModified: file.LastModified, 
+          CreationDay: creationDay,        // Data formatada com base em LastModified
+          CreatedAtMeta: createdAtMeta,    // Data de criação real, vinda do metadata
+        };
+      })
+    );
+
+    return filesWithMetadata;
+  } catch (error) {
+    console.error("❌ Erro ao listar arquivos do S3:", error);
+    throw new Error("Erro ao listar arquivos");
+  }
+};
